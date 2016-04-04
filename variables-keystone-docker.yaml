@@ -1,0 +1,9 @@
+keystone_install_tasks: install/docker.yaml
+keystone_database_tasks: database/noop.yaml
+
+keystone_conf:
+  DEFAULT:
+    admin_token: asdf1234
+    debug: True
+  DATABASE:
+    connection: mysql://keystone:keystone@172.16.41.1:3306/keystone

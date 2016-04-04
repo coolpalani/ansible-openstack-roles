@@ -1,0 +1,6 @@
+---
+- name: install rdo repos
+  yum: name=https://www.rdoproject.org/repos/rdo-release.rpm state=installed
+
+- name: disable selinux
+  selinux: state=permissive policy=targeted

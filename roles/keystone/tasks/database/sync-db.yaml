@@ -1,0 +1,5 @@
+---
+- name: create/synchronise keystone database
+  become: true
+  become_user: keystone
+  shell: creates=/var/lib/keystone/.db_synced keystone-manage db_sync && touch /var/lib/keystone/.db_synced

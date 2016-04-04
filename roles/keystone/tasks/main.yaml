@@ -1,0 +1,7 @@
+---
+- include: "{{ keystone_install_tasks }}"
+- include: "{{ keystone_pre_deploy_tasks }}"
+- include: "{{ keystone_configure_tasks }}"
+- include: "{{ keystone_database_tasks }}"
+- include: "{{ keystone_services_tasks }}"
+- include: "{{ keystone_post_deploy_tasks }}"

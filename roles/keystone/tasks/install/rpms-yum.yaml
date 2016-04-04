@@ -1,0 +1,6 @@
+---
+- name: install keystone from rpms with yum
+  yum: name={{ item }} state=installed
+  with_items:
+    - openstack-keystone
+    - python-keystone

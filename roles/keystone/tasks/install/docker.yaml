@@ -1,0 +1,55 @@
+---
+- name: install docker
+  yum: name={{ item }} state=installed
+  with_items:
+    - docker-io
+    - python-docker-py
+
+- name: start docker
+  service: name=docker state=started
+
+- name: download docker image
+  docker:
+    name: openstack-keystone
+    image: kollaglue/centos-rdo-keystone:kilo
+    state: present
+
+- name: create keystone user
+  user: name=keystone shell=/sbin/nologin system=yes uid=163
+
+- name: create directories needed for keystone
+  file: path={{ item }} owner=keystone group=keystone mode=0750 state=directory
+  with_items:
+    - /etc/keystone
+    - /var/lib/keystone
+
+- name: create keystone-paste.ini file in /etc/keystone
+  get_url: url=https://github.com/openstack/keystone/raw/stable/kilo/etc/keystone-paste.ini dest=/etc/keystone/keystone-paste.ini owner=keystone group=keystone mode=0640
+
+- name: create systemd unit for keystone
+  copy:
+    dest: /usr/lib/systemd/system/openstack-keystone.service
+    owner: root
+    group: root
+    mode: 0644
+    content: |
+      [Unit]
+      Description=OpenStack Identity Service (code-named Keystone)
+      Requires=docker.service
+      After=docker.service
+
+      [Service]
+      Restart=on-failure
+      RestartSec=10
+      ExecStartPre=-/usr/bin/docker kill openstack-keystone
+      ExecStartPre=-/usr/bin/docker rm openstack-keystone
+      ExecStart=/usr/bin/docker run --name=openstack-keystone -P -v '/etc/keystone/:/etc/keystone/:ro' kollaglue/centos-rdo-keystone:kilo
+      ExecStop=-/usr/bin/docker stop openstack-keystone
+
+      [Install]
+      WantedBy=multi-user.target
+  register: keystone_systemd_unit
+
+- name: reload systemd to pick up keystone service
+  shell: systemctl daemon-reload
+  when: keystone_systemd_unit.changed

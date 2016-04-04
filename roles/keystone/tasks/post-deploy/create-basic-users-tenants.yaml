@@ -1,0 +1,43 @@
+---
+- name: install python-pip
+  yum: name={{ item }} state=installed
+  with_items:
+    - python-pip
+    - python-devel
+    - gcc
+    - git
+
+- name: install python-shade from pip
+  pip: name={{ item }} state=present
+  with_items:
+    - shade
+    - funcsigs
+
+- name: create admin tenant
+  os_project:
+    auth_type: admin_token
+    auth:
+      endpoint: 'http://localhost:35357/v2.0'
+      token: "{{ keystone_conf['DEFAULT']['admin_token'] }}"
+    name: admin
+    description: "admin tenant"
+
+- name: create admin user
+  os_user:
+    auth_type: admin_token
+    auth:
+      endpoint: 'http://localhost:35357/v2.0'
+      token: "{{ keystone_conf['DEFAULT']['admin_token'] }}"
+    name: admin
+    password: "{{ keystone_conf['DEFAULT']['admin_token'] }}"
+    email: admin@example.com
+    default_project: admin
+
+- name: create service tenant
+  os_project:
+    auth_type: admin_token
+    auth:
+      endpoint: 'http://localhost:35357/v2.0'
+      token: "{{ keystone_conf['DEFAULT']['admin_token'] }}"
+    name: service
+    description: "service tenant"

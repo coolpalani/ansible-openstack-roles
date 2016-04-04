@@ -1,0 +1,58 @@
+---
+- name: install needed dependencies from operating system
+  yum: name={{ item }}
+  with_items:
+    - libffi-devel
+    - openssl-devel
+    - MySQL-python
+    - python-pip
+    - git
+    - gcc
+    - python-devel
+    - pytz
+
+- name: create keystone user
+  user: name=keystone shell=/sbin/nologin system=yes uid=163
+
+- name: install keystone from git using pip
+  pip: name={{ item }} editable=false
+  with_items:
+    - 'oslo.i18n'
+    - 'git+https://git.openstack.org/openstack/keystone.git@2015.1.2'
+    - 'funcsigs'
+    - 'functools32'
+
+- name: create directories needed for keystone
+  file: path={{ item }} owner=keystone group=keystone mode=0750 state=directory
+  with_items:
+    - /etc/keystone
+    - /var/lib/keystone
+
+- name: create keystone-paste.ini file in /etc/keystone
+  get_url: url=https://github.com/openstack/keystone/raw/stable/kilo/etc/keystone-paste.ini dest=/etc/keystone/keystone-paste.ini owner=keystone group=keystone mode=0640
+
+- name: create systemd unit for keystone
+  copy:
+    dest: /usr/lib/systemd/system/openstack-keystone.service
+    owner: root
+    group: root
+    mode: 0644
+    content: |
+      [Unit]
+      Description=OpenStack Identity Service (code-named Keystone)
+      After=syslog.target network.target
+      
+      [Service]
+      Type=notify
+      NotifyAccess=all
+      Restart=always
+      User=keystone
+      ExecStart=/usr/bin/keystone-all
+      
+      [Install]
+      WantedBy=multi-user.target
+  register: keystone_systemd_unit
+
+- name: reload systemd to pick up keystone service
+  shell: systemctl daemon-reload
+  when: keystone_systemd_unit.changed

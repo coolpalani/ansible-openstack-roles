@@ -1,0 +1,3 @@
+---
+- name: start keystone services
+  service: name=openstack-keystone state=started

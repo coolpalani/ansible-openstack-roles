@@ -1,0 +1,8 @@
+---
+- hosts: all
+  vars_files:
+    - variables-keystone-rpm.yaml
+  roles:
+    - all_nodes
+    - mariadb
+    - keystone

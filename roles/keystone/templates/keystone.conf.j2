@@ -1,0 +1,6 @@
+{% for i in keystone_conf %}
+[{{ i }}]
+{% for j in keystone_conf[i] %}
+{{ j }}={{ keystone_conf[i][j] }}
+{% endfor %}
+{% endfor %}

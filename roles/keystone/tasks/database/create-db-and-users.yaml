@@ -1,0 +1,9 @@
+---
+- name: create mysql database user
+  mysql_user: name=keystone host={{ item }} check_implicit_admin=yes password=keystone priv='keystone.*:all' login_host={{ keystone_conf['DATABASE']['connection'] | regex_replace('^.*@(.*):.*$', '\\1') }}
+  with_items:
+    - localhost
+    - '%'
+
+- name: create keystone database
+  mysql_db: name=keystone

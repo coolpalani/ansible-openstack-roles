@@ -1,0 +1,5 @@
+---
+- name: update existing keystone configuration file
+  ini_file: dest=/etc/keystone/keystone.conf section={{ item[0] }} option={{ item[1] }} value={{ item[2] }}
+  with_nested:
+    - "{{ keystone_conf|list }}"

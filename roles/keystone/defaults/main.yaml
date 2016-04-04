@@ -1,0 +1,7 @@
+---
+keystone_install_tasks: install/rpms-yum.yaml
+keystone_pre_deploy_tasks: pre-deploy/noop.yaml
+keystone_configure_tasks: configure/complete-template.yaml
+keystone_database_tasks: database/create-and-sync-db.yaml
+keystone_services_tasks: services/systemd.yaml
+keystone_post_deploy_tasks: post-deploy/create-basic-users-tenants.yaml
